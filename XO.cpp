@@ -11,7 +11,6 @@ void showField(int arr[N][N]);
 int main()
 {
     string Player1, Player2;
-	
 	cout << "    " << "Game <<Tic-Tac-Toe>>" << endl;
     cout << endl;
     cout << "Enter name of the first player: " << endl;
@@ -22,7 +21,7 @@ int main()
     
     chooseFigure();
     
-	// заполняем массив значениями от 1 до 9
+	// Р·Р°РїРѕР»РЅСЏРµРј РјР°СЃСЃРёРІ СЌР»РµРјРµРЅС‚Р°РјРё 1...9
 	int fieldXO[N][N];
     int cellValue = 1;
     for (int i = 0; i < N; i++) {
@@ -31,7 +30,7 @@ int main()
     		cellValue++;
     	}
     }
-    // вывод игрового поля
+    // РІС‹РІРѕРґ РјР°СЃСЃРёРІР°
     showField(fieldXO);    
     cout << "Make your move, please...";
     //makeMove();
