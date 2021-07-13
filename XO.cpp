@@ -60,7 +60,7 @@ int chooseFigure() {
     cout << endl;
 	cout << "Choose your figure -  X or O: " << endl;
 	cout << "X - 1" << endl;
-	cout << "O - 2" << endl;
+	cout << "O - 0" << endl;
 	cout << "Your choice: ";
 	cin >> figure;
 	system("cls");
