@@ -11,6 +11,7 @@ void showField(char arr[N]);
 bool checkWeCanWin(int step[N]);
 void oneStep(int choicePlayer);
 int randomStepCPU();
+bool checkWin();
 
 int currentStep = 0;
 int stepFirst[N] = {0};
@@ -43,32 +44,44 @@ int main()
     while(true) {
             if (choicePlayer == 1) {
                     oneStep(1);
+                    if(checkWin())
+                        break;
                     oneStep(0);
+                    if(checkWin())
+                        break;
             }
             else {
                     oneStep(0);
+                    if(checkWin())
+                        break;
                     oneStep(1);
+                    if(checkWin())
+                        break;
             }
 
-            if (checkWeCanWin(stepFirst)) {
-                    showField(fieldXO);
-                    cout << "You is win";
-                    break;
-            }
-            if (checkWeCanWin(stepSecond)) {
-                    showField(fieldXO);
-                    cout << "CPU is win";
-                    break;
-            }
 
-            if(countAllStep == 9) {
-                    cout << "Draw";
-                    break;
-            }
 
     }
 
     return 0;
+}
+
+bool checkWin() {
+        if (checkWeCanWin(stepFirst)) {
+                showField(fieldXO);
+                cout << "You is win";
+                return true;
+        }
+        else if (checkWeCanWin(stepSecond)) {
+                showField(fieldXO);
+                cout << "CPU is win";
+                return true;
+        }
+        else if(countAllStep == 9) {
+                cout << "Draw";
+                return true;
+        }
+        return false;
 }
 
 void oneStep(int choicePlayer) {
