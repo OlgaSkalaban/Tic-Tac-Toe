@@ -105,7 +105,7 @@ int playsForX(char field[], int stepEnemy[], int allStep[], int allSteps) {
 	int stepX;
 	int num;
 	int check = 0;
-	//åñëè õîä ïåðâûé, òî çàíèìàåì öåíòðàëüíóþ ÿ÷åéêó
+	//если ход первый, то занимаем центральную ячейку
 	if (allSteps == 0)
 	   	stepX = 5;	   	
 	//если ход второй и противник занял ЧЕТНУЮ ячейку, занимаем дальнюю угловую ячейку
@@ -149,12 +149,56 @@ int playsForX(char field[], int stepEnemy[], int allStep[], int allSteps) {
  	return stepX;
 }
 
+int checkWeCanWinOrBlocked(char field[], char symb, char symbE)
+{
+	// horizontal check
+	for (int i = 0; i < 9; i = i+3) {
+		if ( (field[i] == symb) && (field[i+1] == symb) && (field[i+2] != symbE) && (field[i+2] != symb) )
+            return i+2;
+        else if ( (field[i] == symb) && (field[i+1] != symbE) && (field[i+1] != symb) && (field[i+2] == symb) )
+            return i+1;
+        else if ( (field[i] != symbE) && (field[i] != symb) && (field[i+1] == symb) && (field[i+2] == symb) )
+            return i;		
+	}
+	//vertical check
+	for (int i = 0; i < 3; i++) {
+		if ( (field[i] == symb) && (field[i+3] == symb) && (field[i+6] != symbE) && (field[i+6] != symb))
+            return i+6;
+        else if ( (field[i] == symb) && (field[i+3] != symbE) && (field[i+3] != symb) && (field[i+6] == symb))
+            return i+3;
+        else if ( (field[i] != symbE) && (field[i] != symb) && (field[i+3] == symb) && (field[i+6] == symb))
+            return i;		
+	}
+	//diagonal check
+	if ( (field[0] == symb) && (field[4] == symb) && (field[8] != symbE) && (field[8] != symb) )
+		return 8;
+    if ( (field[0] == symb) && (field[4] != symbE) && (field[4] != symb) && (field[8] == symb) )
+		return 4;
+    if ( (field[0] != symbE) && (field[0] != symb) && (field[4] == symb) && (field[8] == symb) )
+		return 0;
+		
+    if ( (field[2] == symb) && (field[4] == symb) && (field[6] != symbE) && (field[6] != symb) )
+		return 6;
+    if ( (field[2] == symb) && (field[4] != symbE) && (field[4] != symb) && (field[6] == symb) )
+		return 4;
+    if ( (field[2] != symbE) && (field[2] != symb) && (field[4] == symb) && (field[6] == symb) )
+		return 2;
+		// if all cells are taken
+	return -2;
+}
+
 void oneStep(int choicePlayer, char symbol) {
 
         showField(fieldXO);
         if (choicePlayer == 1) {
-                cout << "Make your move, please...";
-                cin >> currentStep;
+                //cout << "Make your move, please...";
+                //cin >> currentStep;
+		currentStep = 1 + checkWeCanWinOrBlocked(fieldXO, 'O', 'X');// проверяем на проигрыш
+                if (currentStep == -1) {
+                	currentStep = 1 + checkWeCanWinOrBlocked(fieldXO, 'X', 'O');// проверяем на победу
+                	if (currentStep == -1)
+                		currentStep = playsForX(fieldXO, stepSecond, allStep, countAllStep);
+                } 
                 stepFirst[countStepFirst] = currentStep;
                 fieldXO[currentStep - 1] = symbol;
         }
