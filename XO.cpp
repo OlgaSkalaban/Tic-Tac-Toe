@@ -2,13 +2,16 @@
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
+#include <windows.h>
 
 using namespace std;
 
 const int N = 9;
 int chooseFigure();
 void showField(char arr[N]);
-bool checkWeCanWin(int step[N]);
+bool checkWeWin(int step[N]);
+int checkWeCanWinOrBlocked(char field[], char symb, char symbE);
+int playsForX(char field[], int stepEnemy[], int allStep[], int allSteps);
 void oneStep(int choicePlayer, char symbol);
 int randomStepCPU();
 bool checkWin();
@@ -28,7 +31,7 @@ int lastStepCPU = 0;
 int main() {
 
         int choicePlayer = chooseFigure();
-
+	srand(time(NULL));
         while(true) {
                 currentStep = 0;
                 for (int i = 0; i < N; i++) {
@@ -46,18 +49,22 @@ int main() {
                         if (choicePlayer == 1) {
                                 oneStep(1, 'X');
                                 if(checkWin())
-                                        break;
+                                        break;				
+				Sleep(1000);
                                 oneStep(0, 'O');
                                 if(checkWin())
                                         break;
+				Sleep(1000);
                         }
                         else {
                                 oneStep(0, 'X');
                                 if(checkWin())
-                                        break;
-                                oneStep(1, 'O');
+                                        break;                                
+				Sleep(1000);
+				oneStep(1, 'O');
                                 if(checkWin())
-                                        break;
+                                        break;				
+				Sleep(1000);
                         }
                 }
 
@@ -77,12 +84,12 @@ int main() {
 }
 
 bool checkWin() {
-        if (checkWeCanWin(stepFirst)) {
+        if (checkWeWin(stepFirst)) {
                 showField(fieldXO);
                 cout << "You is win";
                 return true;
         }
-        else if (checkWeCanWin(stepSecond)) {
+        else if (checkWeWin(stepSecond)) {
                 showField(fieldXO);
                 cout << "CPU is win";
                 return true;
@@ -92,6 +99,54 @@ bool checkWin() {
                 return true;
         }
         return false;
+}
+
+int playsForX(char field[], int stepEnemy[], int allStep[], int allSteps) {
+	int stepX;
+	int num;
+	int check = 0;
+	//åñëè õîä ïåðâûé, òî çàíèìàåì öåíòðàëüíóþ ÿ÷åéêó
+	if (allSteps == 0)
+	   	stepX = 5;	   	
+	//если ход второй и противник занял ЧЕТНУЮ ячейку, занимаем дальнюю угловую ячейку
+ 	else if ((allSteps == 1) && (stepEnemy[0] % 2 == 0)) { 		
+ 		if (stepEnemy[0] == fieldXO[1]) {
+ 			do {
+ 				stepX = (1 + rand() % 9);
+ 			} while ((stepX = 7) || (stepX = 9));
+ 		}
+ 		if (stepEnemy[0] == fieldXO[3]) {                               
+ 			do {
+ 				stepX = (1 + rand() % 9);
+ 			} while ((stepX = 3) || (stepX = 9));
+ 		}
+ 		if (stepEnemy[0] == fieldXO[5]) {
+ 			do {
+ 				stepX = (1 + rand() % 9);
+ 			} while ((stepX = 1) || (stepX = 7));
+ 		}
+ 		if (stepEnemy[0] == fieldXO[7]) {
+ 			do {
+ 				stepX = (1 + rand() % 9);
+ 			} while ((stepX = 1) || (stepX = 3));
+ 		}
+ 	}//иначе занимаем любую угловую ячейку
+ 	else {
+ 		while (true) {
+ 			check = 0;
+			 do {
+ 				stepX = (1 + rand() % 9);
+			} while ((stepX != 1) && (stepX != 3) && (stepX != 7) && (stepX != 9));
+		 	for (int i = 0; i < N; i++) {
+			 	if (stepX == allStep[i]) {
+                    check++;
+                }		
+ 			}
+			if (check == 0)
+            	break; 		
+ 		}
+	}
+ 	return stepX;
 }
 
 void oneStep(int choicePlayer, char symbol) {
