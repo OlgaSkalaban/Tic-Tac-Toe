@@ -2,7 +2,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <ctime>
-#include <windows.h>
+//#include <windows.h>
 
 using namespace std;
 
@@ -12,9 +12,16 @@ void showField(char arr[N]);
 bool checkWeWin(int step[N]);
 int checkWeCanWinOrBlocked(char field[], char symb, char symbE);
 int playsForX(char field[], int stepEnemy[], int allStep[], int allSteps);
-void oneStep(int choicePlayer, char symbol);
+void oneStep(char symbol);
 int randomStepCPU();
 bool checkWin();
+bool containInArray(int array[N], int numForCheck);
+void stepZero();
+int hasFreeEven();
+int hasFreeOdd();
+int checkForWinOnNextStep(int step[N], int countStep);
+void doStepCPU(int step);
+void stepMen(char symbol, int choicePlayer);
 
 int currentStep = 0;
 int stepFirst[N] = {0};
@@ -46,25 +53,29 @@ int main() {
                 lastStepCPU = 0;
 
                 while(true) {
+
                         if (choicePlayer == 1) {
-                                oneStep(1, 'X');
-                                if(checkWin())
-                                        break;				
-				Sleep(1000);
-                                oneStep(0, 'O');
+                                stepMen('X', 1);//человек
                                 if(checkWin())
                                         break;
-				Sleep(1000);
+				//Sleep(1000);
+
+                                stepZero();//компьютер
+                                fieldXO[lastStepCPU - 1] = 'O';
+
+                                if(checkWin())
+                                        break;
+				//Sleep(1000);
                         }
                         else {
-                                oneStep(0, 'X');
+                                oneStep('X');//компьютер
                                 if(checkWin())
-                                        break;                                
-				Sleep(1000);
-				oneStep(1, 'O');
+                                        break;
+				//Sleep(1000);
+				                stepMen('O',0);//человек
                                 if(checkWin())
-                                        break;				
-				Sleep(1000);
+                                        break;
+				//Sleep(1000);
                         }
                 }
 
@@ -95,6 +106,7 @@ bool checkWin() {
                 return true;
         }
         else if(countAllStep == 9) {
+                showField(fieldXO);
                 cout << "Draw";
                 return true;
         }
@@ -102,20 +114,19 @@ bool checkWin() {
 }
 
 int playsForX(char field[], int stepEnemy[], int allStep[], int allSteps) {
-	int stepX;
-	int num;
-	int check = 0;
+	int stepX = 0;
+	//int check = 0;
 	//если ход первый, то занимаем центральную ячейку
 	if (allSteps == 0)
-	   	stepX = 5;	   	
+	   	stepX = 5;
 	//если ход второй и противник занял ЧЕТНУЮ ячейку, занимаем дальнюю угловую ячейку
- 	else if ((allSteps == 1) && (stepEnemy[0] % 2 == 0)) { 		
+ 	else if ((allSteps == 1) && (stepEnemy[0] % 2 == 0)) {
  		if (stepEnemy[0] == fieldXO[1]) {
  			do {
  				stepX = (1 + rand() % 9);
  			} while ((stepX = 7) || (stepX = 9));
  		}
- 		if (stepEnemy[0] == fieldXO[3]) {                               
+ 		if (stepEnemy[0] == fieldXO[3]) {
  			do {
  				stepX = (1 + rand() % 9);
  			} while ((stepX = 3) || (stepX = 9));
@@ -132,20 +143,27 @@ int playsForX(char field[], int stepEnemy[], int allStep[], int allSteps) {
  		}
  	}//иначе занимаем любую угловую ячейку
  	else {
- 		while (true) {
+                if ((hasFreeOdd() != 0)) {
+                                stepX = hasFreeOdd();
+                }
+                else {
+                                stepX = hasFreeEven();
+                }
+ 		/*while (true) {
  			check = 0;
-			 do {
+			do {
  				stepX = (1 + rand() % 9);
 			} while ((stepX != 1) && (stepX != 3) && (stepX != 7) && (stepX != 9));
 		 	for (int i = 0; i < N; i++) {
 			 	if (stepX == allStep[i]) {
-                    check++;
-                }		
+                                        check++;
+                                }
  			}
 			if (check == 0)
-            	break; 		
- 		}
+            	           break;
+ 		}*/
 	}
+
  	return stepX;
 }
 
@@ -158,7 +176,7 @@ int checkWeCanWinOrBlocked(char field[], char symb, char symbE)
         else if ( (field[i] == symb) && (field[i+1] != symbE) && (field[i+1] != symb) && (field[i+2] == symb) )
             return i+1;
         else if ( (field[i] != symbE) && (field[i] != symb) && (field[i+1] == symb) && (field[i+2] == symb) )
-            return i;		
+            return i;
 	}
 	//vertical check
 	for (int i = 0; i < 3; i++) {
@@ -167,7 +185,7 @@ int checkWeCanWinOrBlocked(char field[], char symb, char symbE)
         else if ( (field[i] == symb) && (field[i+3] != symbE) && (field[i+3] != symb) && (field[i+6] == symb))
             return i+3;
         else if ( (field[i] != symbE) && (field[i] != symb) && (field[i+3] == symb) && (field[i+6] == symb))
-            return i;		
+            return i;
 	}
 	//diagonal check
 	if ( (field[0] == symb) && (field[4] == symb) && (field[8] != symbE) && (field[8] != symb) )
@@ -176,7 +194,7 @@ int checkWeCanWinOrBlocked(char field[], char symb, char symbE)
 		return 4;
     if ( (field[0] != symbE) && (field[0] != symb) && (field[4] == symb) && (field[8] == symb) )
 		return 0;
-		
+
     if ( (field[2] == symb) && (field[4] == symb) && (field[6] != symbE) && (field[6] != symb) )
 		return 6;
     if ( (field[2] == symb) && (field[4] != symbE) && (field[4] != symb) && (field[6] == symb) )
@@ -187,31 +205,156 @@ int checkWeCanWinOrBlocked(char field[], char symb, char symbE)
 	return -2;
 }
 
-void oneStep(int choicePlayer, char symbol) {
+void stepZero() {
+    showField(fieldXO);
+        int step = -1;
+        if (!containInArray(allStep, 5)) {
+                step = 5;
+                doStepCPU(step);
+        }
+        else if (countStepSecond == 0 && containInArray(allStep, 5)) {
+                step = 1;
+                doStepCPU(step);
+        }
+        else if (checkForWinOnNextStep(stepSecond, countStepSecond) != 0) {
+                step = checkForWinOnNextStep(stepSecond, countStepSecond);
+                doStepCPU(step);
+        }
+        else if (checkForWinOnNextStep(stepFirst, countStepFirst) != 0) {
+                step = checkForWinOnNextStep(stepFirst, countStepFirst);
+                doStepCPU(step);
+        }
+        else if (countStepSecond == 1 && containInArray(stepSecond, 5)) {
+                if (stepFirst[0] % 2 == 1 && stepFirst[1] % 2 == 1) {
+                        if ((stepFirst[0] + 1) != 9)
+                                step = stepFirst[0] - 1;
+                        else
+                                step = stepFirst[0] + 1;
+                        doStepCPU(step);
+                }
+                else if ((stepFirst[0] % 2 == 1 && (stepFirst[1] % 2 == 0 && (abs(stepFirst[1] - stepFirst[0]) == 1 || abs(stepFirst[1] - stepFirst[0]) == 3)))
+                 || ((stepFirst[0] % 2 == 0 && (abs(stepFirst[1] - stepFirst[0]) == 1 || abs(stepFirst[1] - stepFirst[0]) == 3)) && stepFirst[1] % 2 == 0)) {
+                                        if (stepFirst[0] % 2 == 0) {
+                                                if (abs(5 - stepFirst[0]) == 1) {
+                                                        if (!containInArray(allStep, (stepFirst[0] - 3)))
+                                                                step = stepFirst[0] - 3;
+                                                        else
+                                                                step = stepFirst[0] + 3;
+                                                }
+                                                if (abs(5 - stepFirst[0]) == 3) {
+                                                        if (!containInArray(allStep, (stepFirst[0] - 1)))
+                                                                step = stepFirst[0] - 1;
+                                                        else
+                                                                step = stepFirst[0] + 1;
+                                                }
+                                        }
+                                        else if (stepFirst[1] % 2 == 0) {
+                                                if (abs(5 - stepFirst[1]) == 1) {
+                                                        if (!containInArray(allStep, (stepFirst[1] - 3)))
+                                                                step = stepFirst[1] - 3;
+                                                        else
+                                                                step = stepFirst[1] + 3;
+                                                }
+                                                if (abs(5 - stepFirst[1]) == 3) {
+                                                        if (!containInArray(allStep, (stepFirst[1] - 1)))
+                                                                step = stepFirst[1] - 1;
+                                                        else
+                                                                step = stepFirst[1] + 1;
+                                                }
+                                        }
+                                        doStepCPU(step);
+                        }
+                }
+                else if (hasFreeOdd() != 0) {
+                                step = hasFreeOdd();
+                                doStepCPU(step);
 
+                }
+                else {
+                                step = hasFreeEven();
+                                doStepCPU(step);
+                }
+        lastStepCPU = step;
+}
+
+void doStepCPU(int step) {
+        stepSecond[countStepSecond] = step;
+        allStep[countAllStep] = step;
+        countAllStep++;
+        countStepSecond++;
+}
+
+int hasFreeOdd() {
+        for (int i = 0; i <= N; i++)
+                if (i % 2 == 1 && !containInArray(allStep, i))
+                        return i;
+        return 0;
+}
+
+int hasFreeEven() {
+        for (int i = 0; i <= N; i++)
+                if (i % 2 == 0 && !containInArray(allStep, i))
+                        return i;
+        return 0;
+}
+
+int checkForWinOnNextStep(int step[N], int countStep) {
+        for (int i = 1; i <= N; i++) {
+                if (!containInArray(allStep, i)) {
+                        step[countStep] = i;
+                        if (checkWeWin(step)) {
+                                step[countStep] = 0;
+                                return i;
+                        }
+                        step[countStep] = 0;
+                }
+        }
+
+        return 0;
+}
+
+void oneStep(char symbol) {
         showField(fieldXO);
-        if (choicePlayer == 1) {
-                //cout << "Make your move, please...";
-                //cin >> currentStep;
-		currentStep = 1 + checkWeCanWinOrBlocked(fieldXO, 'O', 'X');// проверяем на проигрыш
+                currentStep = 1 + checkWeCanWinOrBlocked(fieldXO, 'O', 'X');// проверяем на проигрыш
                 if (currentStep == -1) {
-                	currentStep = 1 + checkWeCanWinOrBlocked(fieldXO, 'X', 'O');// проверяем на победу
-                	if (currentStep == -1)
-                		currentStep = playsForX(fieldXO, stepSecond, allStep, countAllStep);
-                } 
-                stepFirst[countStepFirst] = currentStep;
+                        currentStep = 1 + checkWeCanWinOrBlocked(fieldXO, 'X', 'O');// проверяем на победу
+                        if (currentStep == -1)
+                            currentStep = playsForX(fieldXO, stepSecond, allStep, countAllStep);
+                }
                 fieldXO[currentStep - 1] = symbol;
-        }
-        else {
-                currentStep = randomStepCPU();
-                stepSecond[countStepFirst] = currentStep;
-                fieldXO[currentStep - 1] = symbol;
-                lastStepCPU = currentStep;
-        }
+
+
         allStep[countAllStep] = currentStep;
+        stepFirst[countStepFirst] = currentStep;
         countStepFirst++;
         countAllStep++;
 
+}
+
+void stepMen(char symbol, int choicePlayer) {
+    while(true){
+            showField(fieldXO);
+            cout << "Make your move, please...";
+            cin >> currentStep;
+            if (!containInArray(allStep, currentStep)) {
+                    fieldXO[currentStep - 1] = symbol;
+
+                    if (choicePlayer == 1) {
+                            stepFirst[countStepFirst] = currentStep;
+                            countStepFirst++;
+                    }
+                    else {
+                            stepSecond[countStepSecond] = currentStep;
+                            countStepSecond++;
+                    }
+                    allStep[countAllStep] = currentStep;
+                    countAllStep++;
+                    break;
+            }
+            else {
+                    continue;
+            }
+    }
 }
 
 int randomStepCPU() {
@@ -234,7 +377,7 @@ int randomStepCPU() {
         return step;
 }
 
-bool checkWeCanWin(int step[]) {
+bool checkWeWin(int step[]) {
         int countInRow = 0;
         bool check = false;
 
@@ -290,4 +433,10 @@ int chooseFigure() {
 	return figure;
 }
 
-//void makeMove(int ) {
+
+bool containInArray(int array[N], int numForCheck) {
+        for (int i = 0; i < N; i++)
+                if (array[i] == numForCheck)
+                        return true;
+        return false;
+}
