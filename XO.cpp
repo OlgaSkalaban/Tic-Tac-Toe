@@ -9,7 +9,7 @@ const int N = 9;
 int chooseFigure();
 void showField(char arr[N]);
 bool checkWeCanWin(int step[N]);
-void oneStep(int choicePlayer);
+void oneStep(int choicePlayer, char symbol);
 int randomStepCPU();
 bool checkWin();
 
@@ -25,43 +25,53 @@ char fieldXO[N]  = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 int lastStepCPU = 0;
 
 
-int main()
-{
-    /*string Player1, Player2;
-	cout << "    " << "Game <<Tic-Tac-Toe>> " << endl;
-    cout << endl;
-    cout << "Enter name of the first player: " << endl;
-    getline(cin, Player1);
-    cout << "Enter name of the second player: " << endl;
-    getline(cin, Player2);
-    system("cls");*/
+int main() {
 
-    int choicePlayer = chooseFigure();
+        int choicePlayer = chooseFigure();
 
+        while(true) {
+                currentStep = 0;
+                for (int i = 0; i < N; i++) {
+                        stepFirst[i] = 0;
+                        stepSecond[i] = 0;
+                        fieldXO[i] = 49 + i;
+                        allStep[i] = 0;
+                }
+                countStepFirst = 0;
+                countStepSecond = 0;
+                countAllStep = 0;
+                lastStepCPU = 0;
 
-    // вывод массива
+                while(true) {
+                        if (choicePlayer == 1) {
+                                oneStep(1, 'X');
+                                if(checkWin())
+                                        break;
+                                oneStep(0, 'O');
+                                if(checkWin())
+                                        break;
+                        }
+                        else {
+                                oneStep(0, 'X');
+                                if(checkWin())
+                                        break;
+                                oneStep(1, 'O');
+                                if(checkWin())
+                                        break;
+                        }
+                }
 
-    while(true) {
-            if (choicePlayer == 1) {
-                    oneStep(1);
-                    if(checkWin())
+                cout << endl;
+                int again = -1;
+                cout << "Enter 0 - for exit OR press any key for restart";
+                cin >> again;
+
+                if (again == 0) {
+                        again = 1;
                         break;
-                    oneStep(0);
-                    if(checkWin())
-                        break;
-            }
-            else {
-                    oneStep(0);
-                    if(checkWin())
-                        break;
-                    oneStep(1);
-                    if(checkWin())
-                        break;
-            }
+                }
 
-
-
-    }
+        }
 
     return 0;
 }
@@ -84,19 +94,19 @@ bool checkWin() {
         return false;
 }
 
-void oneStep(int choicePlayer) {
+void oneStep(int choicePlayer, char symbol) {
 
         showField(fieldXO);
         if (choicePlayer == 1) {
                 cout << "Make your move, please...";
                 cin >> currentStep;
                 stepFirst[countStepFirst] = currentStep;
-                fieldXO[currentStep - 1] = 'X';
+                fieldXO[currentStep - 1] = symbol;
         }
         else {
                 currentStep = randomStepCPU();
                 stepSecond[countStepFirst] = currentStep;
-                fieldXO[currentStep - 1] = 'O';
+                fieldXO[currentStep - 1] = symbol;
                 lastStepCPU = currentStep;
         }
         allStep[countAllStep] = currentStep;
@@ -170,7 +180,7 @@ int chooseFigure() {
 	int figure;
 
 	cout << "    " << "Game <<Tic-Tac-Toe>>" << endl;
-    cout << endl;
+        cout << endl;
 	cout << "Who is play first: " << endl;
 	cout << "1 - Player step first" << endl;
 	cout << "0 - Cpu step first" << endl;
