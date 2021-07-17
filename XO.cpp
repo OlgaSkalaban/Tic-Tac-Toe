@@ -115,7 +115,7 @@ bool checkWin() {
 
 int playsForX(char field[], int stepEnemy[], int allStep[], int allSteps) {
 	int stepX = 0;
-	//int check = 0;
+	int check = 0;
 	//если ход первый, то занимаем центральную ячейку
 	if (allSteps == 0)
 	   	stepX = 5;
@@ -143,14 +143,24 @@ int playsForX(char field[], int stepEnemy[], int allStep[], int allSteps) {
  		}
  	}//иначе занимаем любую угловую ячейку
  	else {
-                if ((hasFreeOdd() != 0)) {
+                /*if ((hasFreeOdd() != 0)) {
                                 stepX = hasFreeOdd();
                 }
                 else {
                                 stepX = hasFreeEven();
+                }*/
+        for(int i = 1; i <= N; i++) {
+                if (i % 2 ==1 && !containInArray(allStep,i)) {
+                        if (stepSecond[0] % 2 == 0 && (abs(stepSecond[0] - i) != 1 || abs(stepSecond[0] - i) != 3)) {
+                                stepX = i;
+                        }
                 }
+        }
+
+
  		/*while (true) {
  			check = 0;
+
 			do {
  				stepX = (1 + rand() % 9);
 			} while ((stepX != 1) && (stepX != 3) && (stepX != 7) && (stepX != 9));
@@ -160,7 +170,7 @@ int playsForX(char field[], int stepEnemy[], int allStep[], int allSteps) {
                                 }
  			}
 			if (check == 0)
-            	           break;
+            	          break;
  		}*/
 	}
 
