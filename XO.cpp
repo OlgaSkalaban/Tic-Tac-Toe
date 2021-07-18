@@ -33,7 +33,7 @@ int countAllStep = 0;
 int forWin[8][3] = {{1, 2, 3}, {4, 5, 6}, {7, 8, 9}, {1, 4, 7}, {2, 5, 8}, {3, 6, 9}, {1, 5, 9}, {3, 5, 7}};
 char fieldXO[N]  = {'1', '2', '3', '4', '5', '6', '7', '8', '9'};
 int lastStepCPU = 0;
-
+int choicePlayer = -1;
 
 int main() {
 
@@ -97,12 +97,18 @@ int main() {
 bool checkWin() {
         if (checkWeWin(stepFirst)) {
                 showField(fieldXO);
-                cout << "You is win";
+                if (choicePlayer == 1)
+                        cout << "You is win";
+                else
+                        cout << "CPU is win";
                 return true;
         }
         else if (checkWeWin(stepSecond)) {
                 showField(fieldXO);
-                cout << "CPU is win";
+                if (choicePlayer == 0)
+                        cout << "You is win";
+                else
+                        cout << "CPU is win";
                 return true;
         }
         else if(countAllStep == 9) {
@@ -149,14 +155,28 @@ int playsForX(char field[], int stepEnemy[], int allStep[], int allSteps) {
                 else {
                                 stepX = hasFreeEven();
                 }*/
-        for(int i = 1; i <= N; i++) {
-                if (i % 2 ==1 && !containInArray(allStep,i)) {
-                        if (stepSecond[0] % 2 == 0 && (abs(stepSecond[0] - i) != 1 || abs(stepSecond[0] - i) != 3)) {
+                for(int i = 1; i <= N; i++) {
+                        if (i % 2 ==1 && !containInArray(allStep,i)) {
+                                if (stepSecond[0] % 2 == 0 && (abs(stepSecond[0] - i) != 1 || abs(stepSecond[0] - i) != 3)) {
+                                        stepX = i;
+                                }
+                                else if (stepSecond[1] % 2 == 0 && (abs(stepSecond[1] - i) != 1 || abs(stepSecond[1] - i) != 3)) {
+                                        stepX = i;
+                                }
+                        }
+                }
+
+        if(stepX == 0) {
+                for(int i = 1; i <= N; i++) {
+                        if (i % 2 ==1 && !containInArray(allStep,i)) {
                                 stepX = i;
                         }
                 }
-        }
 
+        }
+        if(stepX == 0) {
+                stepX = hasFreeEven();
+        }
 
  		/*while (true) {
  			check = 0;
@@ -273,6 +293,9 @@ void stepZero() {
                                                 }
                                         }
                                         doStepCPU(step);
+                        }
+                        else {
+                                step = hasFreeOdd();
                         }
                 }
                 else if (hasFreeOdd() != 0) {
