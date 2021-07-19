@@ -348,9 +348,9 @@ int checkForWinOnNextStep(int step[N], int countStep) {
 
 void oneStep(char symbol) {
         showField(fieldXO);
-                currentStep = 1 + checkWeCanWinOrBlocked(fieldXO, 'O', 'X');// проверяем на проигрыш
+                currentStep = 1 + checkWeCanWinOrBlocked(fieldXO, 'X', 'O');// проверяем на проигрыш
                 if (currentStep == -1) {
-                        currentStep = 1 + checkWeCanWinOrBlocked(fieldXO, 'X', 'O');// проверяем на победу
+                        currentStep = 1 + checkWeCanWinOrBlocked(fieldXO, 'O', 'X');// проверяем на победу
                         if (currentStep == -1)
                             currentStep = playsForX(fieldXO, stepSecond, allStep, countAllStep);
                 }
